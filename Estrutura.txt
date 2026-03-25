@@ -1,0 +1,181 @@
+A ideia é ficares com um monorepo (um repositório) com:
+
+Backend (FastAPI): ingestão de logs, regras, alertas, autenticação
+Frontend (React): dashboard, pesquisa de eventos, gestão de alertas/incidentes
+Infra: Docker Compose, migrations, observabilidade básica
+
+✅ Estrutura recomendada (monorepo)
+
+mini-siem/
+├─ README.md
+├─ .gitignore
+├─ .env.example
+├─ docker-compose.yml
+├─ Makefile
+│
+|
+|─ backend/
+│  ├─ pyproject.toml
+│  ├─ Dockerfile
+│  └─ app/
+│     ├─ main.py
+│     ├─ core/
+│     │  ├─ config.py          # env vars (Supabase URL + DB URL)
+│     │  └─ logging.py
+│     ├─ api/
+│     │  └─ v1/
+│     │     ├─ router.py
+│     │     └─ endpoints/
+│     │        ├─ health.py
+│     │        └─ ingest.py     # a seguir
+│     ├─ db/
+│     │  ├─ session.py         # SQLAlchemy engine/session
+│     │  └─ base.py
+│     ├─ models/
+│     │  └─ event.py
+│     ├─ schemas/
+│     │  └─ event.py
+│     └─ services/
+│        ├─ parser.py
+│        └─ rules_engine.py
+|
+│
+├─ frontend/
+│  ├─ Dockerfile
+│  ├─ package.json
+│  ├─ vite.config.ts            # (ou CRA/Next)
+│  ├─ src/
+│  │  ├─ main.tsx
+│  │  ├─ api/
+│  │  │  └─ client.ts           # axios/fetch wrapper
+│  │  ├─ pages/
+│  │  │  ├─ Dashboard.tsx
+│  │  │  ├─ Events.tsx
+│  │  │  ├─ Alerts.tsx
+│  │  │  └─ Incidents.tsx
+│  │  ├─ components/
+│  │  │  ├─ charts/
+│  │  │  ├─ tables/
+│  │  │  └─ layout/
+│  │  ├─ hooks/
+│  │  └─ styles/
+│  └─ public/
+│
+├─ docs/
+│  ├─ architecture.md
+│  ├─ api.md
+│  └─ detection-rules.md
+│
+└─ scripts/
+   ├─ seed_events.py            # gerar logs de teste
+   └─ simulate_attacks.py       # simulações (fase 2)
+
+
+
+ ✅ O que esta estrutura te dá (valor de mercado)
+
+Separação por camadas (api / services / models / schemas) → padrão muito usado em empresas
+Versionamento de API (api/v1) → profissional
+Motor de regras isolado → fácil de evoluir para “MITRE mapping”, correlação e até ML
+Testes desde cedo → diferencia-te no portefólio
+docs/ → recrutaadores adoram ver documentação mínima  
+
+
+
+
+✅ docker-compose.yml (base para começares já)
+Aqui vai um exemplo com backend + frontend + Postgres (simples e robusto). Se preferires SQLite para começar, também dá — mas Postgres é mais “market-ready”.
+
+
+
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: minisiem
+      POSTGRES_USER: minisiem
+      POSTGRES_PASSWORD: minisiem
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://minisiem:minisiem@db:5432/minisiem
+      APP_ENV: dev
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_API_URL: http://localhost:8000/api/v1
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
+
+
+
+✅ Backend: ficheiros mínimos para “subir” (só estrutura + health)
+backend/app/main.py
+
+
+from fastapi import FastAPI
+from app.api.v1.router import router as v1_router
+
+app = FastAPI(title="Mini-SIEM", version="0.1.0")
+app.include_router(v1_router, prefix="/api/v1")
+
+
+
+backend/app/api/v1/router.py
+
+
+from fastapi import APIRouter
+from app.api.v1.endpoints import health
+
+router = APIRouter()
+router.include_router(health.router, tags=["health"])
+
+
+
+backend/app/api/v1/endpoints/health.py
+
+from fastapi import APIRouter
+
+router = APIRouter()
+
+@router.get("/health")
+def health():
+    return {"status": "ok"}
+
+
+
+✅ Frontend: estrutura mínima (páginas e client API)
+
+src/api/client.ts para falar com o backend
+pages/Dashboard.tsx com um “hello” inicial
+depois ligas gráficos e tabelas
+
+
+
+
+
+
+
+
+
+
+
+
+

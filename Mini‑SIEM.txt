@@ -1,0 +1,155 @@
+Mini‑SIEM — Versão Profissional mas Realista para Portefólio
+A ideia é criar uma aplicação que simule as funcionalidades essenciais de um SIEM real (Elastic, Splunk, Sentinel), mas de forma leve e prática.
+Abaixo tens arquitetura, módulos, funcionalidades, linguagens recomendadas e primeiros passos de desenvolvimento.
+
+##1. Arquitetura do Mini‑SIEM
+
+
+Frontend
+
+React ou Vue (UI moderna)
+Dashboards interativos
+Visualização de logs e alertas
+
+Backend
+
+Python (FastAPI ou Flask)
+Ingestão de logs (API)
+Motor de deteção (regras)
+Normalização de eventos
+
+Base de Dados
+
+Elasticsearch (ideal para logs) ou
+SQLite/PostgreSQL (mais simples no início)
+
+
+##2. Módulos Essenciais
+
+
+1. Ingestão de Logs
+O Mini‑SIEM deve receber logs de várias fontes:
+
+Logs de Windows
+Logs de Linux
+Logs de firewalls simulados
+Eventos enviados via API (JSON)
+
+Formato recomendado:
+{
+  "timestamp": "...",
+  "source": "windows",
+  "event_type": "authentication",
+  "message": "Failed login by user X",
+  "ip": "192.168.1.10"
+}
+
+
+2. Normalização de Eventos
+Transformar logs brutos em campos estruturados:
+
+hostname
+IP
+user
+event_type
+severity
+
+Isto é essencial num SIEM verdadeiro.
+
+3. Motor de Regras (deteção de ameaças)
+Aqui começa a parte “inteligente”.
+Exemplos de regras:
+
+Mais de 5 falhas de login em 1 minuto
+Execução de ficheiros suspeitos
+Acesso a portas incomuns
+Padrões de comportamento MITRE ATT&CK
+
+Formato simples de regra:
+if event.event_type == "failed_login" and count_over_1_min > 5:
+    trigger_alert("Possible brute force attack")
+
+
+4. Correlação de Eventos
+Para mostrar maturidade:
+
+Ligar eventos de diferentes fontes
+Ex.: falhas de login + alteração de ficheiros = comportamento suspeito
+Agrupamento por IP, utilizador ou host
+
+
+5. Dashboard e Reporting
+Gráficos como:
+
+Número de alertas por severidade
+Eventos por origem
+Timeline de incidentes
+
+E exportação para PDF/CSV.
+
+6. Gestão de Incidentes
+Um módulo simples:
+
+Abrir incidente
+Atribuir estado (Aberto, Em investigação, Resolvido)
+Notas e evidências
+
+
+## 3. Funcionalidades que impressionam recrutadores
+
+
+Suporte a MITRE ATT&CK
+Regras personalizáveis em YAML
+API completa para ingestão de logs
+Simulador de ataques (para demonstrar deteção)
+Dashboard bonito e rápido
+Possibilidade de integração futura com ML (mesmo que básica)
+
+
+##4. Tecnologias recomendadas
+
+
+Backend
+
+Python (FastAPI)
+ElasticSearch ou SQLite
+Celery (para tarefas assíncronas, se precisares)
+
+Frontend
+
+React + Tailwind ou Chakra UI
+
+DevOps (Opcional)
+
+Docker
+Docker Compose
+
+
+##5. Primeiros passos (do mais simples ao completo)
+
+
+Etapa 1 — Criar o backend
+
+Endpoints para receber logs
+Guardar logs na base de dados
+Criar estrutura de eventos
+
+Etapa 2 — Criar motor de regras
+
+Regras básicas
+Execução em tempo real
+
+Etapa 3 — Criar o dashboard
+
+Listagem de eventos
+Listagem de alertas
+Gráficos simples
+
+Etapa 4 — Adicionar correlação
+
+Agrupar logs relacionados
+
+Etapa 5 — Incidentes
+
+Módulo CRUD para gerir investigação
+
