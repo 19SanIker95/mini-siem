@@ -13,13 +13,18 @@ app = FastAPI(
 )
 
 # 2️⃣ CORS (frontend poder chamar o backend)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o.strip() for o in settings.cors_origins.split(",")],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # 3️⃣ Ligar os endpoints (/health, /ingest, etc.)
 app.include_router(v1_router, prefix="/api/v1")
