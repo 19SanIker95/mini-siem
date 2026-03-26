@@ -26,6 +26,11 @@ app.add_middleware(
 # 3️⃣ Ligar os endpoints (/health, /ingest, etc.)
 app.include_router(v1_router, prefix="/api/v1")
 
+@app.get("/")
+def root():
+    return {"status": "ok"}
+
+
 # 4️⃣ Código que corre quando a app arranca
 #@app.on_event("startup")
 #def on_startup():
