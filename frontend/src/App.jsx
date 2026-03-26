@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
+import Alerts from "./pages/Alerts";
 
 export default function App() {
   const [page, setPage] = useState("dashboard");
@@ -11,11 +12,13 @@ export default function App() {
 
       <nav style={{ marginBottom: 20 }}>
         <button onClick={() => setPage("dashboard")}>Dashboard</button>{" "}
-        <button onClick={() => setPage("events")}>Events</button>
+        <button onClick={() => setPage("events")}>Events</button>{" "}
+        <button onClick={() => setPage("alerts")}>Alerts</button>
       </nav>
 
       {page === "dashboard" && <Dashboard />}
       {page === "events" && <Events />}
+      {page === "alerts" && <Alerts />}
     </div>
   );
 }
