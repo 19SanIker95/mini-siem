@@ -12,6 +12,7 @@ from app.db.base import Base
 
 class Alert(Base):
     __tablename__ = "alerts"
+    __table_args__ = {"schema": "public"}
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),

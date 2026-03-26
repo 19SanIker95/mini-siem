@@ -1,8 +1,3 @@
-# mini-siem
-
-“How to seed demo data”
-comando para gerar brute force e provar alertas
-
 import json
 import random
 import argparse
@@ -255,13 +250,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-   python scripts/seed_events.py --total 200 
-   python scripts/seed_events.py --total 200 --bruteforce --brute-count 6 --window-seconds 50 --brute-ip 192.168.1.10
-   python scripts/seed_events.py --total 5 --dry-run

@@ -1,13 +1,15 @@
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select, desc
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from app.db.session import get_db
 from app.models.event import Event            # ✅ IMPORTA O ORM CERTO
 from app.schemas.event import EventOut        # ✅ usa o teu schema existente
+from app.schemas.stats import EventsStatsOut, RangeOut
 
 router = APIRouter()
 
@@ -56,3 +58,60 @@ def list_events(
     stmt = stmt.order_by(desc(Event.ts)).offset(offset).limit(limit)
 
     return db.execute(stmt).scalars().all()
+
+
+
+@router.get("/events/stats", response_model=EventsStatsOut)
+def events_stats(
+    db: Session = Depends(get_db),
+    # Filtros opcionais (se não enviares nada, usa últimos 24h)
+    start: datetime | None = None,
+    end: datetime | None = None,
+    since_minutes: int = Query(default=1440, ge=1, le=525600),  # 24h por defeito
+):
+    now = datetime.now(timezone.utc)
+
+    if end is None:
+        end = now
+    if start is None:
+        start = end - timedelta(minutes=since_minutes)
+
+    # Total
+    total = db.execute(
+        select(func.count()).select_from(Event).where(Event.ts >= start, Event.ts <= end)
+    ).scalar_one()
+
+    # By severity
+    sev_rows = db.execute(
+        select(Event.severity, func.count())
+        .where(Event.ts >= start, Event.ts <= end)
+        .group_by(Event.severity)
+        .order_by(Event.severity)
+    ).all()
+    by_severity = {str(sev): cnt for sev, cnt in sev_rows}
+
+    # By source
+    src_rows = db.execute(
+        select(Event.source, func.count())
+        .where(Event.ts >= start, Event.ts <= end)
+        .group_by(Event.source)
+        .order_by(Event.source)
+    ).all()
+    by_source = {str(src): cnt for src, cnt in src_rows}
+
+    # By event_type
+    type_rows = db.execute(
+        select(Event.event_type, func.count())
+        .where(Event.ts >= start, Event.ts <= end)
+        .group_by(Event.event_type)
+        .order_by(Event.event_type)
+    ).all()
+    by_event_type = {str(et): cnt for et, cnt in type_rows}
+
+    return EventsStatsOut(
+        range=RangeOut(start=start, end=end),
+        total=total,
+        by_severity=by_severity,
+        by_source=by_source,
+        by_event_type=by_event_type,
+    )

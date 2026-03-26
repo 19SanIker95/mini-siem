@@ -1,0 +1,8 @@
+
+{
+  "range": {"start": "...", "end": "..."},
+  "total": 1234,
+  "by_severity": {"1": 700, "3": 400, "4": 134},
+  "by_source": {"linux": 600, "windows": 300, "app": 334},
+  "by_event_type": {"authentication": 500, "network": 500, "process": 234}
+}

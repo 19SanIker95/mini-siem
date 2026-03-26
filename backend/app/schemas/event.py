@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field, IPvAnyAddress
 from typing import Any, Optional, Dict
 import uuid
 
+
 class EventIn(BaseModel):
     ts: datetime
     source: str = Field(..., max_length=50)
@@ -12,13 +13,19 @@ class EventIn(BaseModel):
 
     host: Optional[str] = None
     user: Optional[str] = None
-    ip: Optional[IPvAnyAddress] = None   # ✅ MUDAR AQUI
+    ip: Optional[IPvAnyAddress] = None  # mantém assim
 
     message: str
     raw: Dict[str, Any] = Field(default_factory=dict)
 
+
+
 class EventOut(EventIn):
     id: uuid.UUID
-    created_at: datetime
+    created_at: datetime  # ✅ ADICIONAR
+
+    class Config:
+        from_attributes = True
+
     # se tiveres created_at no DB e no ORM, podes adicionar:
     # created_at: datetime

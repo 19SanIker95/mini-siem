@@ -53,3 +53,4 @@ def run_bruteforce_rule(db: Session = Depends(get_db)):
 @router.get("/alerts", response_model=list[AlertOut])
 def list_alerts(db: Session = Depends(get_db)):
     return db.query(Alert).order_by(Alert.created_at.desc()).all()
+
