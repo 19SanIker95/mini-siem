@@ -1,3 +1,5 @@
+import SeverityBadge from "./SeverityBadge";
+
 export default function AlertTable({ alerts }) {
   if (alerts.length === 0) {
     return <p>No alerts 🎉</p>;
@@ -20,7 +22,7 @@ export default function AlertTable({ alerts }) {
           <tr key={a.id}>
             <td>{new Date(a.created_at).toLocaleString()}</td>
             <td>{a.rule_name}</td>
-            <td>{a.severity}</td>
+            <td><SeverityBadge severity={a.severity} /></td>
             <td>{a.ip || "-"}</td>
             <td>{a.event_count}</td>
             <td>

@@ -1,3 +1,5 @@
+import SeverityBadge from "./SeverityBadge";
+
 export default function EventTable({ events }) {
   if (!events || events.length === 0) {
     return <p>No events found</p>;
@@ -18,10 +20,10 @@ export default function EventTable({ events }) {
       <tbody>
         {events.map(e => (
           <tr key={e.id}>
-            <td>{new Date(e.ts).toLocaleString()}</td>
+            <td style={{ fontFamily: "monospace", fontSize: 12 }}>{new Date(e.ts).toISOString()}</td>
             <td>{e.source}</td>
             <td>{e.event_type}</td>
-            <td>{e.severity}</td>
+            <td><SeverityBadge severity={e.severity} /></td>
             <td>{e.ip || "-"}</td>
             <td>{e.message}</td>
           </tr>

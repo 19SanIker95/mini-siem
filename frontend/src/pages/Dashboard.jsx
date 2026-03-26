@@ -16,24 +16,36 @@ export default function Dashboard() {
   if (!stats) return <p>Loading dashboard…</p>;
 
   return (
-    <div>
-      <h2>Dashboard</h2>
+  <div
+    style={{
+      color: "var(--text)",
+      backgroundColor: "transparent",
+    }}
+  >
+    <h2>Dashboard</h2>
 
-      <div style={{ display: "flex", gap: 16, marginBottom: 20 }}>
-        <StatCard title="Total Events" value={stats.total} />
-        <StatCard
-          title="Auth Events"
-          value={stats.by_event_type.authentication || 0}
-        />
-        <StatCard
-          title="Network Events"
-          value={stats.by_event_type.network || 0}
-        />
-        <StatCard
-          title="Process Events"
-          value={stats.by_event_type.process || 0}
-        />
-      </div>
+    <div
+      style={{
+        display: "flex",
+        gap: 16,
+        marginBottom: 20,
+        flexWrap: "wrap",
+      }}
+    >
+      <StatCard title="Total Events" value={stats.total} />
+      <StatCard
+        title="Auth Events"
+        value={stats.by_event_type.authentication || 0}
+      />
+      <StatCard
+        title="Network Events"
+        value={stats.by_event_type.network || 0}
+      />
+      <StatCard
+        title="Process Events"
+        value={stats.by_event_type.process || 0}
+      />
     </div>
-  );
+  </div>
+);
 }
