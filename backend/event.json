@@ -1,0 +1,18 @@
+
+{
+  "ts": "2026-03-24T23:26:25Z",
+  "source": "linux",
+  "event_type": "authentication",
+  "severity": 3,
+  "host": "server-01",
+  "user": "tiago",
+  "ip": "192.168.1.10",
+  "message": "Failed login attempt",
+  "raw": {
+    "program": "sshd",
+    "reason": "invalid password"
+  }
+}
+
+
+

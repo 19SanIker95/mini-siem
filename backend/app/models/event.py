@@ -2,7 +2,7 @@
 import uuid
 from datetime import datetime
 from typing import Optional, Dict, Any
-
+from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import String, Integer, Text, func
 from sqlalchemy.dialects.postgresql import UUID, JSONB, INET, TIMESTAMP
@@ -13,10 +13,13 @@ from app.db.base import Base
 class Event(Base):
     __tablename__ = "events"
 
+
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        primary_key=True
+        primary_key=True,
+        server_default=func.gen_random_uuid()
     )
+
 
     ts: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True),
@@ -70,3 +73,11 @@ class Event(Base):
         server_default=func.now(),
         nullable=False
     )
+
+
+
+
+
+
+
+

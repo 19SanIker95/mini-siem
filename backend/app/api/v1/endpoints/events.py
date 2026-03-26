@@ -1,67 +1,58 @@
-import uuid
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, Integer, Text, func
-from sqlalchemy.dialects.postgresql import UUID, JSONB, INET, TIMESTAMP
+from datetime import datetime
+from typing import Optional
 
-from app.db.base import Base
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy import select, desc
+from sqlalchemy.orm import Session
 
-class Event(Base):
-    __tablename__ = "events"
+from app.db.session import get_db
+from app.models.event import Event            # ✅ IMPORTA O ORM CERTO
+from app.schemas.event import EventOut        # ✅ usa o teu schema existente
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        primary_key=True
-    )
+router = APIRouter()
 
-    ts: Mapped = mapped_column(
-        TIMESTAMP(timezone=True),
-        nullable=False
-    )
+@router.get("/events", response_model=list[EventOut])
+def list_events(
+    db: Session = Depends(get_db),
 
-    source: Mapped[str] = mapped_column(
-        String(50),
-        nullable=False
-    )
+    source: Optional[str] = None,
+    event_type: Optional[str] = None,
+    host: Optional[str] = None,
+    user: Optional[str] = None,
+    ip: Optional[str] = None,
 
-    event_type: Mapped[str] = mapped_column(
-        String(80),
-        nullable=False
-    )
+    min_severity: Optional[int] = Query(default=None, ge=0, le=10),
+    max_severity: Optional[int] = Query(default=None, ge=0, le=10),
 
-    severity: Mapped[int] = mapped_column(
-        Integer,
-        nullable=False,
-        default=1
-    )
+    start: Optional[datetime] = None,
+    end: Optional[datetime] = None,
 
-    host: Mapped[str | None] = mapped_column(
-        String(255),
-        nullable=True
-    )
+    limit: int = Query(default=50, ge=1, le=500),
+    offset: int = Query(default=0, ge=0),
+):
+    stmt = select(Event)
 
-    user: Mapped[str | None] = mapped_column(
-        "user",
-        String(255),
-        nullable=True
-    )
+    if source:
+        stmt = stmt.where(Event.source == source)
+    if event_type:
+        stmt = stmt.where(Event.event_type == event_type)
+    if host:
+        stmt = stmt.where(Event.host == host)
+    if user:
+        stmt = stmt.where(Event.user == user)
+    if ip:
+        stmt = stmt.where(Event.ip == ip)
 
-    ip: Mapped[str | None] = mapped_column(
-        INET,
-        nullable=True
-    )
+    if min_severity is not None:
+        stmt = stmt.where(Event.severity >= min_severity)
+    if max_severity is not None:
+        stmt = stmt.where(Event.severity <= max_severity)
 
-    message: Mapped[str] = mapped_column(
-        Text,
-        nullable=False
-    )
+    if start:
+        stmt = stmt.where(Event.ts >= start)
+    if end:
+        stmt = stmt.where(Event.ts <= end)
 
-    raw: Mapped[dict] = mapped_column(
-        JSONB,
-        nullable=False
-    )
+    stmt = stmt.order_by(desc(Event.ts)).offset(offset).limit(limit)
 
-    created_at: Mapped = mapped_column(
-        TIMESTAMP(timezone=True),
-        server_default=func.now(),
-        nullable=False
-    )
+    return db.execute(stmt).scalars().all()
