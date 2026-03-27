@@ -2,9 +2,22 @@ import time
 import socket
 import yaml
 import requests
+import threading
 from datetime import datetime, timezone
+from collectors.linux_auth import linux_auth_collector
+from collectors.windows_security import windows_failed_logon_collector
+from collectors.linux_auth import start_linux_auth
 
 CONFIG_FILE = "config.yaml"
+
+host = socket.gethostname()
+
+threading.Thread(
+    target=start_linux_auth,
+    args=(send_event, config["linux_auth"], host),
+    daemon=True
+).start()
+
 
 
 def load_config():
