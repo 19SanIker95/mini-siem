@@ -1,4 +1,4 @@
-const API_BASE = "http://127.0.0.1:8000/api/v1";
+const API_BASE = "https://mini-siem-6s8m.onrender.com/api/v1";
 
 export async function getEvents({
   limit = 25,
