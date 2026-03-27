@@ -4,8 +4,19 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.models.event import Event
 from app.schemas.event import EventIn, EventOut
+from app.services.bruteforce import detect_bruteforce
 
 router = APIRouter()
+
+@router.post("/ingest")
+def ingest_event(event: EventCreate, db: Session = Depends(get_db)):
+    new_event = Event(**event.dict())
+    db.add(new_event)
+    db.commit()
+
+    detect_bruteforce(db)
+
+    return {"status": "ok"}
 
 @router.post("/ingest", response_model=EventOut)
 def ingest_event(event_in: EventIn, db: Session = Depends(get_db)):
