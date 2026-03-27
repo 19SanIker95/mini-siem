@@ -1,0 +1,6 @@
+siem_url: "https://mini-siem-6s8m.onrender.com/api/v1/ingest"
+
+source: "linux"
+severity_heartbeat: 1
+
+interval_seconds: 10
